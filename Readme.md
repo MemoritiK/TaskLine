@@ -8,6 +8,7 @@ A simple **Task Manager REST API** built with **FastAPI** and **SQLModel (SQLite
   * `name` (string)
   * `priority` (`Normal` or `High`)
   * `date` (string, automatically generated as `Jan 2` style)
+  * `status` (`new` or `completed`)
 * Fully compatible with CLI or any frontend
 
 
