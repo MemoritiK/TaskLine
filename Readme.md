@@ -1,73 +1,93 @@
 # Task Manager API
 
-A simple **Task Manager REST API** built with **FastAPI** and **SQLModel (SQLite)**.
+A full-featured **Task Manager REST API** built with **FastAPI** and **SQLModel (SQLite)**.
 
-* Create, read, update, and delete tasks
-* Each task has:
-
-  * `name` (string)
-  * `priority` (`Normal` or `High`)
-  * `date` (string, automatically generated as `Jan 2` style)
-  * `status` (`new` or `completed`)
-* Fully compatible with CLI or any frontend
-
+Supports **user authentication**, **JWT-based sessions**, and **per-user task isolation**, with a dedicated terminal-based CLI frontend.
 
 ## **Features**
 
-* RESTful API endpoints for task management
-* Automatic creation date
-* Simple SQLite database for storage
-* Dependency-injected database sessions
-* Supports pagination (`offset` + `limit`)
+- [x] User registration and login
+- [x] Secure password hashing (bcrypt)
+- [x] Password length reinforcement
+- [x] JWT authentication with expiration
+- [x] Per-user task isolation (tasks are linked to users)
+- [x] Task status support (`new` / `completed`)
+- [x] Task priority (`Normal` / `High`)
+- [x] Automatic date support (`Jan 2` style)
+- [x] Pagination (`offset` + `limit`)
+- [x] Supports persistent login per device
 
-## **Requirements**
 
-* Python 3.10+
-* FastAPI, SQLModel, Uvicorn
+## **Tech Stack**
+Install dependencies:
 
 ```bash
-pip install fastapi sqlmodel uvicorn
+pip install fastapi sqlmodel uvicorn passlib[bcrypt] PyJWT typing
 ```
 
-## **API Endpoints**
+## **Core Models**
 
-| Method   | Endpoint      | Description                                    |
-| -------- | ------------- | ---------------------------------------------- |
-| `GET`    | `/tasks/`     | List all tasks (supports `offset` and `limit`) |
-| `POST`   | `/tasks/`     | Create a new task                              |
-| `PUT`    | `/tasks/{id}` | Update an existing task                        |
-| `DELETE` | `/tasks/{id}` | Delete a task                                  |
+### **User**
 
-### **Example JSON**
+| Field    | Type            |
+| -------- | --------------- |
+| id       | int (PK)        |
+| name     | string (unique) |
+| password | hashed string   |
 
-**Create task:**
+### **Task**
+
+| Field    | Type                    |
+| -------- | ----------------------- |
+| id       | int (PK)                |
+| name     | string                  |
+| priority | `Normal` / `High`       |
+| date     | string (`Jan 2` format) |
+| status   | `new` / `completed`     |
+| user_id  | int (FK → User)         |
+
+
+## **Auth Endpoints**
+
+| Method | Endpoint           | Description                |
+| ------ | ------------------ | -------------------------- |
+| `POST` | `/users/register/` | Register a new user        |
+| `POST` | `/users/login/`    | Login and get JWT          |
+| `GET`  | `/users/verify`    | Verify JWT and return user |
+
+### **Login Response Example**
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer"
+}
+```
+
+## **Task Endpoints**
+
+> All task operations are scoped **per user**.
+
+| Method   | Endpoint                     | Description           |
+| -------- | ---------------------------- | --------------------- |
+| `GET`    | `/tasks/{user_id}`           | List tasks for a user |
+| `POST`   | `/tasks/{user_id}`           | Create a new task     |
+| `PUT`    | `/tasks/{user_id}/{task_id}` | Update a task         |
+| `DELETE` | `/tasks/{user_id}/{task_id}` | Delete a task         |
+
+
+## **Example Task JSON**
 
 ```json
 {
   "name": "Buy milk",
-  "priority": "Normal",
-  "date": "Jan 2"
+  "priority": "High",
+  "date": "Jan 2",
+  "status": "new",
+  "user_id": 1
 }
 ```
 
-**Response for GET `/tasks/`:**
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Buy milk",
-    "priority": "Normal",
-    "date": "Jan 2"
-  },
-  {
-    "id": 2,
-    "name": "Study math",
-    "priority": "High",
-    "date": "Jan 3"
-  }
-]
-```
 
 ## **Running the API**
 
@@ -75,14 +95,20 @@ pip install fastapi sqlmodel uvicorn
 uvicorn main:app --reload
 ```
 
-* The API will be available at: `http://127.0.0.1:8000`
-* Interactive API docs available at:
+* API base: `http://127.0.0.1:8000`
+* Swagger docs:
+  `http://127.0.0.1:8000/docs`
+* ReDoc:
+  `http://127.0.0.1:8000/redoc`
 
-  * Swagger: `http://127.0.0.1:8000/docs`
-  * ReDoc: `http://127.0.0.1:8000/redoc`
+## **CLI Frontend**
 
+This API is designed to work with a **curses-based CLI Task Manager** that supports:
 
-## **Future Improvements**
+* Login / Register
+* Local session persistence
+* High-priority highlighting
+* Completed task dimming
+* Scrolling
+* Full CRUD task control
 
-* Add **authentication / authorization**
-* Add **search / filter** endpoints

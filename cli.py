@@ -1,35 +1,5 @@
 import curses
-import requests
-from datetime import date
-
-BASE_URL = "http://127.0.0.1:8000"  # FastAPI backend URL
-
-def fetch_tasks():
-    r = requests.get(f"{BASE_URL}/tasks/")
-    tasks = r.json()
-    # Sort: completed tasks go to the end
-    tasks.sort(key=lambda t: t["status"] == "completed")
-    return tasks
-
-def add_task(name, priority):
-    today = date.today()
-    date_created = today.strftime("%b %-d")  # e.g., 'Jan 2'
-    data = {"name": name, "priority": priority, "date": date_created}
-    requests.post(f"{BASE_URL}/tasks/", json=data)
-
-def update_task(task_id, name=None, priority=None, status=None):
-    data = {}
-    if name is not None:
-        data["name"] = name
-    if priority is not None:
-        data["priority"] = priority
-    if status is not None:
-        data["status"] = status
-    if data:
-        requests.put(f"{BASE_URL}/tasks/{task_id}", json=data)
-
-def delete_task(task_id):
-    requests.delete(f"{BASE_URL}/tasks/{task_id}")
+from  fetch_backend import *
 
 def get_input(stdscr, prompt):
     curses.echo()
@@ -42,28 +12,31 @@ def get_input(stdscr, prompt):
     curses.noecho()
     return user_input.strip()
 
-def main(stdscr):
-    # Initialize curses
+def task_manager_curses(stdscr, session):
     curses.curs_set(0)
     curses.start_color()
-    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)  # High priority red
-
+    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)  # high priority
+    k = 0
     cursor = 0
     offset = 0
+    token = session["token"]
+    user = session["user"]
+    user_id = user["id"]
 
     while True:
         stdscr.clear()
-        tasks = fetch_tasks()
+        tasks = fetch_tasks(user_id, token)
         num_tasks = len(tasks)
         height, width = stdscr.getmaxyx()
-        display_height = height - 6  # title + instructions + input line
+        display_height = height - 6
 
-        # Title
-        stdscr.addstr(0, 0, "Task Manager", curses.A_BOLD | curses.A_UNDERLINE)
-        # Instructions
-        stdscr.addstr(2, 0, "a=Add  u=Update  Space=Complete  Del=Delete  ↑/↓=Navigate  q=Quit")
+        # Title and instructions
+        title = f"Task Manager - {user['name']}"
+        x = (width - len(title)) // 2
+        stdscr.addstr(0, x, title, curses.A_BOLD | curses.A_UNDERLINE)
+        stdscr.addstr(2, 0, " Instructions: a=Add, u=Update, Space=Toggle Complete, d=Delete, q=Quit")
 
-        # Adjust scrolling
+        # Scrolling
         if cursor < offset:
             offset = cursor
         elif cursor >= offset + display_height:
@@ -74,69 +47,58 @@ def main(stdscr):
             task = tasks[idx]
             checkbox = "[x]" if task["status"] == "completed" else "[ ]"
             line = f"{checkbox} {task['name']:<20} {task['priority']:<6} {task['date']:<6}"
-            line_spacing = 2  # number of lines per task
-            y = 4 + (idx - offset) * line_spacing
-
-            # Set attributes
+            y = 4 + idx - offset
             attr = curses.A_REVERSE if idx == cursor else curses.A_NORMAL
-            if task["priority"] == "High":
+            if task['priority'] == "High":
                 attr |= curses.color_pair(1)
             if task["status"] == "completed":
                 attr |= curses.A_DIM
-
-            stdscr.addstr(y, 0, line[:width - 1], attr)
+            stdscr.addstr(y, 0, line[:width-1], attr)
 
         stdscr.refresh()
         k = stdscr.getch()
 
-        # Navigation
+        # Navigation and actions
         if k == curses.KEY_UP and cursor > 0:
             cursor -= 1
         elif k == curses.KEY_DOWN and cursor < num_tasks - 1:
             cursor += 1
         elif k == ord("q"):
             break
-        elif k == ord(" "):  # mark completed
+        elif k == ord("d") and tasks:
+            delete_task(tasks[cursor]["id"], user_id, token)
+            if cursor >= len(tasks) - 1 and cursor > 0:
+                cursor -= 1
+        elif k == ord(" "):  # toggle completed
             if tasks:
-                task = tasks[cursor]
-                if task["status"] != "completed":
-                    update_task(task["id"], status="completed")
-                if cursor < len(tasks) - 1:
-                    cursor += 1
-        elif k == curses.KEY_DC:  # delete key
-            if tasks:
-                delete_task(tasks[cursor]["id"])
-                if cursor >= len(tasks) - 1 and cursor > 0:
-                    cursor -= 1
-        elif k == ord("a"):  # add task
+                toggle_task_status(tasks[cursor], user_id, token)
+        elif k == ord("a") and user:
             name = get_input(stdscr, "Enter task name: ")
             while True:
                 prio_input = get_input(stdscr, "Priority? [n]ormal/[h]igh: ").upper()
-                if prio_input in ["N", "H"]:
-                    priority = "Normal" if prio_input == "N" else "High"
+                if prio_input in ["N","H"]:
+                    priority = "Normal" if prio_input=="N" else "High"
                     break
-            add_task(name, priority)
-        elif k == ord("u"):  # update task
-            if tasks:
-                task = tasks[cursor]
+            add_task(name, priority, user_id, token)
+        elif k == ord("u") and tasks:
+            task = tasks[cursor]
+            name = get_input(stdscr, f"Update name ({task['name']}): ") or task["name"]
+            while True:
+                prio_input = get_input(stdscr, f"Update priority ({task['priority']})? [n]ormal/[h]igh: ").upper()
+                if prio_input in ["N","H"]:
+                    priority = "Normal" if prio_input=="N" else "High"
+                    break
+                elif prio_input == "":
+                    priority = task["priority"]
+                    break
+            update_task(task["id"], name, priority, user_id, token)
 
-                # Update name
-                name = get_input(stdscr, f"Update name ({task['name']}): ")
-                if not name:
-                    name = None  # no change
+def main():
+    os.system('cls' if os.name=='nt' else 'clear')
+    session = load_session()
+    if not session:
+        session = login_or_register()
+    curses.wrapper(lambda stdscr: task_manager_curses(stdscr, session))
 
-                # Update priority
-                while True:
-                    prio_input = get_input(
-                        stdscr,
-                        f"Update priority ({task['priority']})? [n]ormal/[h]igh/[Enter]=no change: "
-                    ).upper()
-                    if prio_input in ["N", "H"]:
-                        priority = "Normal" if prio_input == "N" else "High"
-                        break
-                    elif prio_input == "":
-                        priority = None
-                        break
-
-                update_task(task["id"], name=name, priority=priority)
-curses.wrapper(main)
+if __name__=="__main__":
+    main()
