@@ -32,7 +32,7 @@ def task_management_ui(stdscr,session,token,user,id,mode:str):
         display_height = height - 6
 
         # Title and instructions
-        title = f"Task Manager - {user['name']}"
+        title = f"Task Line - {user['name']}"
         if mode != "personal":
             title+=f"\n Workspace: {mode}"
         x = (width - len(title)) // 2
@@ -282,15 +282,15 @@ def shared_workspace_menu(stdscr, session):
 def run_main():
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
-
+        
         session = load_session()
         if not session:
             session = login_or_register()
             if not session:
                 return  # user chose quit at login
-
+        
         result = curses.wrapper(lambda stdscr: main_curses(stdscr, session))
-
+ 
         if result == LOGOUT:
             continue   # restart app → login screen again
 
@@ -301,21 +301,31 @@ def run_main():
 def main_curses(stdscr, session):
     while True:
         stdscr.clear()
-        curses.curs_set(0)
-        height,width = stdscr.getmaxyx()
-        title = f"Task Manager CLI - {session['user']['name']}"
-        stdscr.addstr(0,(width-len(title))//2,title,curses.A_BOLD|curses.A_UNDERLINE)
-        stdscr.addstr(2, 0, "Options:")
-        stdscr.addstr(3, 2, "1. Personal Tasks")
-        stdscr.addstr(4, 2, "2. Shared Workspaces")
-        stdscr.addstr(5, 2, "l. Logout")
-        stdscr.addstr(6, 2, "q. Quit")
-        stdscr.refresh()
-        k = stdscr.getch()
+        curses.curs_set(0)        
+        h, w = stdscr.getmaxyx()
+    
+        PAD_Y = 2
+        PAD_X = 2
+    
+        height = h - PAD_Y * 2
+        width = w - PAD_X * 2
+    
+        win = curses.newwin(height, width, PAD_Y, PAD_X)
+        win.keypad(True)
+            
+        title = f"Task Line CLI - {session['user']['name']}"
+        win.addstr(0,(width-len(title))//2,title,curses.A_BOLD|curses.A_UNDERLINE)
+        win.addstr(2, 0, "Options:")
+        win.addstr(3, 2, "1. Personal Tasks")
+        win.addstr(4, 2, "2. Shared Workspaces")
+        win.addstr(5, 2, "l. Logout")
+        win.addstr(6, 2, "q. Quit")
+        win.refresh()
+        k = win.getch()
         if k==ord("1"):
-            personal_task_menu(stdscr, session)
+            personal_task_menu(win, session)
         elif k==ord("2"):
-            shared_workspace_menu(stdscr, session)
+            shared_workspace_menu(win, session)
         elif k==ord("l"):  # Explicit logout
              clear_session()
              return LOGOUT

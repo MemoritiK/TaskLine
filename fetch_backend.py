@@ -61,7 +61,7 @@ def login_user():
 def login_or_register():
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
-        print("\033[0GWelcome to Task Manager CLI!\n")  # \033[0G moves cursor to column 0
+        print("\033[0GWelcome to Task Line CLI!\n")  # \033[0G moves cursor to column 0
         print("\033[0G1. Login")
         print("\033[0G2. Register")
         print("\033[0Gq. Quit")

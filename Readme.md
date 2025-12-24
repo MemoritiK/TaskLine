@@ -118,7 +118,6 @@ pip install requests fastapi sqlmodel uvicorn passlib[argon2] PyJWT typing
 ```bash
 uvicorn main:app --reload
 ```
-
 * API base: `http://127.0.0.1:8000`
 * Swagger docs: `http://127.0.0.1:8000/docs`
 * ReDoc: `http://127.0.0.1:8000/redoc`
@@ -158,6 +157,3 @@ python cli.py
 * Then **Login** to access and manage your tasks and workspaces
 
 ### Results
-<img width="487" height="402" alt="image" src="https://github.com/user-attachments/assets/2f68ab8e-d2ea-42fc-b7d4-2b6b5c6a1205" />
-<img width="447" height="279" alt="image" src="https://github.com/user-attachments/assets/8892b177-d17a-4a23-a20a-68c807254333" />
-<img width="947" height="1018" alt="image" src="https://github.com/user-attachments/assets/75c1dab8-290f-4610-923c-cc4353ed19c0" />
