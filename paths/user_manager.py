@@ -9,10 +9,10 @@ from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from datetime import datetime, timedelta, timezone
 
 router = APIRouter()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 class UserBase(SQLModel):
-    name: str = Field(index = True)
+    name: str = Field(index = True, unique=True)
     password: str
     
 class User(UserBase,table=True):
@@ -56,9 +56,6 @@ def get_current_user(session: SessionDep, token: Annotated[str, Depends(oauth2_s
 def create_user(user: UserBase, session: SessionDep):
     if len(user.password)<5:
         raise HTTPException(status_code=400, detail="Password too short")
-    user_exist = session.exec(select(User).where(User.name == user.name)).first()
-    if user_exist:
-        raise HTTPException(status_code=400, detail="Username already exists")
 
     user.password=pwd_context.hash(user.password)
     db_user = User.model_validate(user)

@@ -18,7 +18,7 @@ class Task(Taskbase, table=True):
 class TaskPublic(Taskbase):
     id: int
 
-class TaskUpdate(Taskbase):
+class TaskUpdate(SQLModel):
     name: str | None = None
     priority: str | None = None
     date: str | None = None
