@@ -71,7 +71,7 @@ def read_user(user: UserBase, session: SessionDep):
         raise HTTPException(status_code=401, detail="Incorrect username or password")
     
     # create token    
-    expiry = datetime.now(timezone.utc) + timedelta(days=180)
+    expiry = datetime.now(timezone.utc) + timedelta(days=60)
     expiry_timestamp = int(expiry.timestamp())  # numeric timestamp
     token = create_access_token({"user_name":user_exist.name,"exp":expiry_timestamp})
     return {"access_token": token, "token_type": "bearer"}

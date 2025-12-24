@@ -17,11 +17,6 @@ def save_session(token, user):
     with open(SESSION_FILE, "w") as f:
         json.dump(data, f)
 
-def load_session():
-    if os.path.exists(SESSION_FILE):
-        with open(SESSION_FILE, "r") as f:
-            return json.load(f)
-    return None
 
 def clear_session():
     if os.path.exists(SESSION_FILE):
@@ -75,6 +70,22 @@ def login_or_register():
         elif choice.lower() == "q":
             exit()
 
+def load_session():
+    if os.path.exists(SESSION_FILE):
+        with open(SESSION_FILE, "r") as f:
+            r = json.load(f)
+            headers = {"Authorization": f"Bearer {r['token']}"}
+            v = requests.get(f"{BASE_URL_USERS}/verify", headers=headers)
+            if v.status_code == 200:
+                return r
+            else:
+                print("Session expired!")
+                clear_session()
+                user = login_or_register()
+                if user: return user
+                
+    return None
+    
 # Personal Task APIs 
 def fetch_personal_tasks(user_id, token):
     headers = {"Authorization": f"Bearer {token}"}
