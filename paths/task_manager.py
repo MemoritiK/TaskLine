@@ -25,7 +25,7 @@ class TaskUpdate(SQLModel):
     date: str | None = None
     status: str | None = None
     
-def verify_user(session,token):
+def verify_user(session,token: Annotated[str, Depends(oauth2_scheme)]):
     current_user = get_current_user(session,token)
     user =  session.exec(select(User).where(User.name == current_user.name)).first()
     if user is None:
