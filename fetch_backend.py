@@ -6,10 +6,10 @@ import getpass
 
 SESSION_FILE = ".task_manager_session"
 
-BASE_URL_USERS = "http://127.0.0.1:8000/users"
-BASE_URL_PERSONAL_TASKS = "http://127.0.0.1:8000/personaltasks"
-BASE_URL_SHARED_TASKS = "http://127.0.0.1:8000/sharedtasks"
-BASE_URL_WORKSPACES = "http://127.0.0.1:8000/workspaces"
+BASE_URL_USERS = "https://taskline-r31n.onrender.com/users"
+BASE_URL_PERSONAL_TASKS = "https://taskline-r31n.onrender.com/personaltasks"
+BASE_URL_SHARED_TASKS = "https://taskline-r31n.onrender.com/sharedtasks"
+BASE_URL_WORKSPACES = "https://taskline-r31n.onrender.com/workspaces"
 
 #  Session Management 
 def save_session(token, user):
@@ -134,7 +134,7 @@ def fetch_workspaces(token):
 def create_workspace(name, owner, token):
     headers = {"Authorization": f"Bearer {token}"}
     data = {"name": name, "owner": owner}
-    r = requests.post("http://127.0.0.1:8000/workspaces/", json=data, headers=headers)
+    r = requests.post("https://taskline-r31n.onrender.com/workspaces/", json=data, headers=headers)
     try:
         wid = r.json()  # this returns workspace_id according to your backend
         return wid
@@ -153,7 +153,7 @@ def delete_workspace(workspace_id, token):
 def add_workspace_member(workspace_id, member_name, token):
     headers = {"Authorization": f"Bearer {token}"}
     data = {"workspace_id": workspace_id, "member": member_name}
-    r = requests.post(f"http://127.0.0.1:8000/workspaces/{workspace_id}/members", json=data, headers=headers)
+    r = requests.post(f"https://taskline-r31n.onrender.com/workspaces/{workspace_id}/members", json=data, headers=headers)
     if r.status_code == 403:
         return "Permission denied (not owner)"
     if r.status_code == 404:
