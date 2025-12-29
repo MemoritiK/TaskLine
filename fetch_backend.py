@@ -95,8 +95,12 @@ def fetch_personal_tasks(user_id, token):
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.get(f"{BASE_URL_PERSONAL_TASKS}/{user_id}", headers=headers)
     tasks = r.json()
-    tasks.sort(key=lambda x: x.get("status")=="completed")
-    return tasks
+    try:
+      tasks.sort(key=lambda x: x.get("status")=="completed")
+      return tasks
+    except:
+        print(tasks)
+        return
 
 
 def add_personal_task(name, priority, user_id, token):
