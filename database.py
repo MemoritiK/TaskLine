@@ -1,12 +1,15 @@
 from typing import Annotated
-from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel import SQLModel, Session
 from fastapi import Depends
+from sqlalchemy import create_engine
+import os
 
+pssd = os.getenv("NEON_TOKEN")
 sqlite_file_name = "task.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+#sqlite_url = f"sqlite:///{sqlite_file_name}"
+sqlite_url = f'postgresql://{pssd}/neondb?sslmode=require&channel_binding=require'
 
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+engine = create_engine(sqlite_url)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)

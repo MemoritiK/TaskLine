@@ -1,0 +1,8 @@
+requests
+fastapi 
+sqlmodel 
+uvicorn 
+passlib[argon2] 
+PyJWT 
+typing
+psycopg2-binary

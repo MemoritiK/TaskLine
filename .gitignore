@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+env/
+*.env
+
+# IDE / editor files
+.vscode/
+.idea/
+
+# Task Manager session files
+.task_manager_session
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dylib
+*.dll
+
+# Logs
+*.log
+
+# Database files (if any local SQLite)
+*.db
+*.sqlite3
