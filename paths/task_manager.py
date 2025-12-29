@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import Annotated, List
 from sqlmodel import select, SQLModel, Field
 from database import SessionDep
+from .user_manager import User, get_current_user, oauth2_scheme
 
 router = APIRouter()
 
@@ -23,9 +24,20 @@ class TaskUpdate(SQLModel):
     priority: str | None = None
     date: str | None = None
     status: str | None = None
+    
+def verify_user(session,token):
+    current_user = get_current_user(session,token)
+    user =  session.exec(select(User).where(User.name == current_user.name)).first()
+    if user is None:
+        raise HTTPException(status_code=403, detail="Invalid User")
+    return user
 
 @router.post("/{user_id}", response_model=TaskPublic)
-def create_task(task: Taskbase, session: SessionDep):
+def create_task(task: Taskbase, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
+    user = verify_user(session,token)
+    if user.id != task.user_id:
+        raise HTTPException(status_code=403, detail="Invalid Owner")
+
     db_task = Task.model_validate(task)
     session.add(db_task)
     session.commit()
@@ -34,15 +46,22 @@ def create_task(task: Taskbase, session: SessionDep):
 
 @router.get("/{user_id}", response_model=List[TaskPublic])
 def read_task(user_id,
-    session: SessionDep,
+    session: SessionDep,token: Annotated[str, Depends(oauth2_scheme)],
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ):
+    user = verify_user(session,token)
+    if user.id!= user_id:
+        raise HTTPException(status_code=403, detail="Invalid Owner")
     tasks = list(session.exec(select(Task).where(Task.user_id == user_id).offset(offset).limit(limit)).all())
     return tasks
 
 @router.delete("/{user_id}/{task_id}")
-def delete_task(task_id: int, session: SessionDep):
+def delete_task(task_id: int, user_id: int, token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep):
+    user = verify_user(session,token)
+    if user.id!= user_id:
+        raise HTTPException(status_code=403, detail="Invalid Owner")
+
     task = session.get(Task, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -51,7 +70,11 @@ def delete_task(task_id: int, session: SessionDep):
     return {"ok": True}
 
 @router.put("/{user_id}/{task_id}", response_model=TaskPublic)
-def update_task(task_id: int, task: TaskUpdate, session: SessionDep):
+def update_task(task_id: int, user_id:int, task: TaskUpdate, token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep):
+    user = verify_user(session,token)
+    if user.id!= user_id:
+        raise HTTPException(status_code=403, detail="Invalid Owner")
+
     task_old = session.get(Task, task_id)
     if not task_old:
         raise HTTPException(status_code=404, detail="Task not found")
