@@ -16,6 +16,6 @@ app.include_router(user_manager.router, prefix="/users", tags=["users"])
 app.include_router(workspace_manager.router, prefix="/workspaces", tags=["workspaces"])
 app.include_router(shared_tasks.router, prefix="/sharedtasks", tags=["sharedtasks"])
 
-@app.get("/")
+@app.head("/")
 def read_root():
     return {"message": "Welcome to the Task Manager API"}
