@@ -98,6 +98,7 @@ def fetch_personal_tasks(user_id, token):
     tasks.sort(key=lambda x: x.get("status")=="completed")
     return tasks
 
+
 def add_personal_task(name, priority, user_id, token):
     today = date.today()
     data = {"name": name, "priority": priority, "date": today.strftime("%b %-d"), "status": "new", "user_id": user_id}
