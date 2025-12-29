@@ -23,7 +23,7 @@ A full-stack task management app with **shared workspaces** and **per-user task 
 
 ```bash
 git clone git@github.com:MemoritiK/TaskLine.git
-cd Taskline
+cd TaskLine
 ```
 
 ### **2. Install CLI**
