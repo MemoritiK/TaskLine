@@ -1,6 +1,5 @@
 import curses
 import os
-import click
 from fetch_backend import*
 LOGOUT = "LOGOUT"
 QUIT = "QUIT"
