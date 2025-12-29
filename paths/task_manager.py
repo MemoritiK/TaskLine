@@ -45,7 +45,7 @@ def create_task(task: Taskbase, session: SessionDep, token: Annotated[str, Depen
     return db_task
 
 @router.get("/{user_id}", response_model=List[TaskPublic])
-def read_task(user_id,
+def read_task(user_id:int,
     session: SessionDep,token: Annotated[str, Depends(oauth2_scheme)],
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
@@ -59,7 +59,7 @@ def read_task(user_id,
 @router.delete("/{user_id}/{task_id}")
 def delete_task(task_id: int, user_id: int, token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep):
     user = verify_user(session,token)
-    if user!= user_id:
+    if user != user_id:
         raise HTTPException(status_code=403, detail="Invalid User")
 
     task = session.get(Task, task_id)
