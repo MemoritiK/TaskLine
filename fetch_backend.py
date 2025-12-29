@@ -3,8 +3,12 @@ import json
 from datetime import date
 import requests
 import getpass
+from pathlib import Path
 
-SESSION_FILE = ".task_manager_session"
+CACHE_DIR = Path.home() / ".cache" / "taskline"
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+SESSION_FILE = CACHE_DIR / "session"
 
 BASE_URL_USERS = "https://taskline-r31n.onrender.com/users"
 BASE_URL_PERSONAL_TASKS = "https://taskline-r31n.onrender.com/personaltasks"
