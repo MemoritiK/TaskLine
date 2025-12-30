@@ -44,14 +44,7 @@ jobs:
       # 6️⃣ Build taskline folder using Nuitka (standalone)
       - name: Build taskline standalone folder
         run: |
-          python -m nuitka \
-            --standalone \
-            --name=taskline \
-            --output-dir=dist \ 
-            --remove-output \
-            --show-progress \
-            --assume-yes-for-downloads \
-            cli.py
+          python -m nuitka --mode=standalone cli.py
 
       # 7️⃣ Debug dist folder
       - name: List dist folder
