@@ -43,23 +43,22 @@ jobs:
 
       # 6️⃣ Build taskline folder using Nuitka (standalone)
       - name: Build taskline standalone folder
-        run: |
-          python -m nuitka --mode=standalone cli.py
-
-      # 7️⃣ Debug dist folder
-      - name: List dist folder
-        run: ls -l ${{ github.workspace }}/dist/
-
-      # 8️⃣ Ensure binary is executable
-      - name: Make binary executable
-        run: chmod +x ${{ github.workspace }}/dist/taskline/taskline
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nutika-version: main
+          script-name: cli.py
+          mode: app
 
       # 9️⃣ Upload artifact (folder)
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: taskline-linux
-          path: ${{ github.workspace }}/dist/taskline/
+          path: | # match what's created for the 3 OSes
+            build/*.exe
+            build/*.bin
+            build/*.app/**/*
+          include-hidden-files: true
 
       # 🔟 Create GitHub Release using the latest tag
       - name: Create GitHub Release
