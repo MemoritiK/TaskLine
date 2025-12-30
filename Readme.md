@@ -16,6 +16,12 @@ A full-stack task management app with **shared workspaces** and **per-user task 
 * Persistent login per device
 * Terminal-friendly CLI with **scrolling, highlighting, and workspace views**
 
+## Results
+<img width="480" height="476" alt="image" src="https://github.com/user-attachments/assets/987f7aa6-9a0a-4c4b-a24d-20eef0fa7c71" />
+<img width="712" height="481" alt="image" src="https://github.com/user-attachments/assets/540bf624-ebd5-46fc-97a9-abafb57f9a87" />
+<img width="856" height="445" alt="image" src="https://github.com/user-attachments/assets/97740d73-1993-4f26-a0e9-8c8eac84876a" />
+<img width="893" height="683" alt="image" src="https://github.com/user-attachments/assets/15a8afdd-c7a6-4057-aabc-916d3d45e4bd" />
+
 
 ## **Installation – CLI**
 
