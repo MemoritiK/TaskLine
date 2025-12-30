@@ -37,12 +37,12 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests pyinstaller readline
+          pip install requests pyinstaller
 
       # 5️⃣ Build taskline binary
       - name: Build taskline binary
         run: |
-         pyinstaller --onefile --name taskline --hidden-import=readline --hidden-import=_curses --hidden-import=requests cli.py
+         pyinstaller --onefile --name taskline --hidden-import=_curses --hidden-import=requests cli.py
 
       # 6️⃣ Debug dist folder
       - name: List dist folder
