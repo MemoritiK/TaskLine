@@ -46,9 +46,11 @@ jobs:
         run: |
           python -m nuitka \
             --standalone \
-            --enable-plugin=curses \
             --name=taskline \
-            --output-dir=dist \
+            --output-dir=dist \ 
+            --remove-output \
+            --show-progress \
+            --assume-yes-for-downloads \
             cli.py
 
       # 7️⃣ Debug dist folder
