@@ -28,47 +28,50 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      # 4️⃣ Install system dependencies
       - name: Install system dependencies
         run: |
            sudo apt-get update
-           sudo apt-get install -y libncurses5-dev libncursesw5-dev libreadline-dev
+           sudo apt-get install -y libncurses5-dev libncursesw5-dev libreadline-dev build-essential
 
-      # 4️⃣ Install dependencies
+      # 5️⃣ Install Python dependencies
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests pyinstaller
+          pip install requests nuitka
 
-      # 5️⃣ Build taskline binary
-      - name: Build taskline binary
+      # 6️⃣ Build taskline folder using Nuitka (standalone)
+      - name: Build taskline standalone folder
         run: |
-         pyinstaller --onefile --name taskline \
-         --hidden-import=_curses --hidden-import=requests \
-         --add-binary "/usr/lib/x86_64-linux-gnu/libreadline.so.8:." \
-         cli.py
+          python -m nuitka \
+            --standalone \
+            --enable-plugin=curses \
+            --name=taskline \
+            --output-dir=dist \
+            cli.py
 
-      # 6️⃣ Debug dist folder
+      # 7️⃣ Debug dist folder
       - name: List dist folder
         run: ls -l ${{ github.workspace }}/dist/
 
-      # 7️⃣ Ensure binary is executable
+      # 8️⃣ Ensure binary is executable
       - name: Make binary executable
-        run: chmod +x ${{ github.workspace }}/dist/taskline
+        run: chmod +x ${{ github.workspace }}/dist/taskline/taskline
 
-      # 8️⃣ Upload artifact (binary only)
+      # 9️⃣ Upload artifact (folder)
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: taskline-linux
-          path: ${{ github.workspace }}/dist/taskline
+          path: ${{ github.workspace }}/dist/taskline/
 
-      # 9️⃣ Create GitHub Release using the latest tag
+      # 🔟 Create GitHub Release using the latest tag
       - name: Create GitHub Release
         if: env.LATEST_TAG != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.LATEST_TAG }}
-          files: ${{ github.workspace }}/dist/taskline
+          files: ${{ github.workspace }}/dist/taskline/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
