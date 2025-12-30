@@ -25,7 +25,7 @@ A full-stack task management app with **shared workspaces** and **per-user task 
 
 ## **Installation – CLI**
 ### **From release**:
-      Download the taskline binary and place it in ~/.local/bin.
+Download the taskline binary and place it in ~/.local/bin.
       
 ### **1. Clone the repo**
 
