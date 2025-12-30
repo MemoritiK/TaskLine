@@ -1,5 +1,6 @@
 import curses
 import os
+import requests
 from fetch_backend import*
 LOGOUT = "LOGOUT"
 QUIT = "QUIT"
