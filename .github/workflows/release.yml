@@ -1,0 +1,50 @@
+name: Build Linux Binary
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04  # older = better compatibility
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system deps
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            python3-dev \
+            build-essential \
+            libncursesw5-dev
+
+      - name: Install Python deps
+        run: |
+          pip install --upgrade pip
+          pip install requests
+          pip install pyinstaller
+
+      - name: Build binary
+        run: |
+           pyinstaller \
+           --onefile \
+           --name taskline \
+           --hidden-import=_curses \
+           cli.py
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+           files: dist/taskline
+        env:
+             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
