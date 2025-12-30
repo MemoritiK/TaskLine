@@ -29,7 +29,8 @@ Download the taskline binary and place it in ~/.local/bin. Make it executable.
              
     chmod +x  ~/.local/bin/taskline
     taskline
-      
+
+### From Repo       
 ### **1. Clone the repo**
 
 ```bash
