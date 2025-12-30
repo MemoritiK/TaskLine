@@ -4,6 +4,7 @@ from datetime import date
 import requests
 import getpass
 from pathlib import Path
+import sys
 
 CACHE_DIR = Path.home() / ".cache" / "taskline"
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -72,7 +73,7 @@ def login_or_register():
         elif choice == "2":
             register_user()
         elif choice.lower() == "q":
-            exit()
+            sys.exit()
 
 def load_session():
     if os.path.exists(SESSION_FILE):
