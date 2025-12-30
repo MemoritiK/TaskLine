@@ -45,7 +45,7 @@ jobs:
       - name: Build taskline standalone folder
         uses: Nuitka/Nuitka-Action@main
         with:
-          nutika-version: main
+          nuitka-version: main
           script-name: cli.py
           mode: app
 
