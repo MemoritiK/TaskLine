@@ -44,6 +44,14 @@ def task_management_ui(stdscr,session,token,user,id,mode:str):
             offset = cursor
         elif cursor >= offset + display_height:
             offset = cursor - display_height + 1
+        header_y = 4
+
+        if mode != "personal":
+            header = f"{'':3} {'Name':<40} {'Priority':<10} {'Date':<8}  {'Created By'}"
+        else:
+            header = f"{'':3} {'Name':<40} {'Priority':<10} {'Date':<8}"
+
+        stdscr.addstr(header_y, 0, header[:width-1], curses.A_BOLD)
 
         # Display tasks
         for idx in range(offset, min(offset + display_height, num_tasks)):
@@ -51,11 +59,11 @@ def task_management_ui(stdscr,session,token,user,id,mode:str):
             checkbox = "[x]" if task["status"] == "completed" else "[ ]"
             
             if mode != "personal":
-                line = f"{checkbox} {task['name']:<20} {task['priority']:<10} {task['date']:<8}  [{task.get('created_by', '')}]"
+                line = f"{checkbox} {task['name']:<40} {task['priority']:<10} {task['date']:<8}  [{task.get('created_by', '')}]"
             else:
-                line = f"{checkbox} {task['name']:<20} {task['priority']:<10} {task['date']:<8}"
+                line = f"{checkbox} {task['name']:<40} {task['priority']:<10} {task['date']:<8}"
             
-            y = 4 + idx - offset
+            y = 5 + idx - offset
             attr = curses.A_REVERSE if idx == cursor else curses.A_NORMAL
             if task['priority'] == "High":
                 attr |= curses.color_pair(1)
