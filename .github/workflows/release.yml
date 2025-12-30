@@ -49,15 +49,20 @@ jobs:
           script-name: cli.py
           mode: app
 
+      - name: Rename binary to taskline
+        run: |
+           # Linux folder build
+           cp build/cli.bin build/taskline.bin
+           cp build/cli.exe build/taskline.exe
+
       # 9️⃣ Upload artifact (folder)
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: taskline-linux
           path: | # match what's created for the 3 OSes
-            build/*.exe
-            build/*.bin
-            build/*.app/**/*
+            build/taskline.exe
+            build/taskline.bin
           include-hidden-files: true
 
       # 🔟 Create GitHub Release using the latest tag
@@ -66,6 +71,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.LATEST_TAG }}
-          files: ${{ github.workspace }}/build/cli.bin
+          files: ${{ github.workspace }}/build/taskline.bin ${{ github.workspace }}/build/taskline.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
