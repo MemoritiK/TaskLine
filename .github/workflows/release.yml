@@ -1,50 +1,52 @@
-name: Build Linux Binary
+name: Build and Release Taskline
 
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest # older = better compatibility
+  build-and-release:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed to fetch all tags
 
-      - name: Set up Python
+      - name: Get latest tag
+        id: tag
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "Latest tag: $LATEST_TAG"
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install system deps
+      - name: Install Python dependencies
         run: |
-          sudo apt update
-          sudo apt install -y \
-            python3-dev \
-            build-essential \
-            libncursesw5-dev
-
-      - name: Install Python deps
-        run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install requests
           pip install pyinstaller
 
-      - name: Build binary
+      - name: Build taskline binary
         run: |
-           pyinstaller \
-           --onefile \
-           --name taskline \
-           --hidden-import=_curses \
-           cli.py
+          pyinstaller --onefile --name taskline --hidden-import=_curses cli.py
 
-      - name: Upload to Release
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: taskline-linux
+          path: dist/taskline
+
+      - name: Create GitHub Release
+        if: env.LATEST_TAG != ''
         uses: softprops/action-gh-release@v2
         with:
-           files: dist/taskline
+          tag_name: ${{ env.LATEST_TAG }}
+          files: dist/taskline
         env:
-             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
