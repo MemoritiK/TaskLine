@@ -53,7 +53,6 @@ jobs:
         run: |
            # Linux folder build
            cp build/cli.bin build/taskline.bin
-           cp build/cli.exe build/taskline.exe
 
       # 9️⃣ Upload artifact (folder)
       - name: Upload artifact
@@ -61,7 +60,6 @@ jobs:
         with:
           name: taskline-linux
           path: | # match what's created for the 3 OSes
-            build/taskline.exe
             build/taskline.bin
           include-hidden-files: true
 
@@ -71,6 +69,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.LATEST_TAG }}
-          files: ${{ github.workspace }}/build/taskline.bin ${{ github.workspace }}/build/taskline.exe
+          files: ${{ github.workspace }}/build/taskline.bin 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
