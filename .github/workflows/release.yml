@@ -1,18 +1,20 @@
 name: Build and Release Taskline
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout the repository with all tags
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Needed to fetch all tags
+          fetch-depth: 0  # fetch all history and tags
 
+      # 2️⃣ Get the latest tag
       - name: Get latest tag
         id: tag
         run: |
@@ -21,38 +23,45 @@ jobs:
           echo "Latest tag: $LATEST_TAG"
           echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
 
+      # 3️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # 4️⃣ Install dependencies
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests
           pip install pyinstaller
 
+      # 5️⃣ Build taskline binary
       - name: Build taskline binary
-        run: pyinstaller --onefile --name taskline --hidden-import=_curses cli.py
-      
-      - name: Debug dist folder
-        run: ls -l dist/
-      
+        run: |
+          pyinstaller --onefile --name taskline --hidden-import=_curses cli.py
+
+      # 6️⃣ Debug dist folder
+      - name: List dist folder
+        run: ls -l ${{ github.workspace }}/dist/
+
+      # 7️⃣ Ensure binary is executable
       - name: Make binary executable
-        run: chmod +x dist/taskline
-      
+        run: chmod +x ${{ github.workspace }}/dist/taskline
+
+      # 8️⃣ Upload artifact (binary only)
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: taskline-linux
-          path: dist/taskline
-      
+          path: ${{ github.workspace }}/dist/taskline
+
+      # 9️⃣ Create GitHub Release using the latest tag
       - name: Create GitHub Release
         if: env.LATEST_TAG != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.LATEST_TAG }}
-          files: dist/taskline
+          files: ${{ github.workspace }}/dist/taskline
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
