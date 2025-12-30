@@ -38,7 +38,7 @@ jobs:
       # 5️⃣ Build taskline binary
       - name: Build taskline binary
         run: |
-          pyinstaller --onefile --name taskline --hidden-import=_curses cli.py
+         pyinstaller --onefile --name taskline --hidden-import=_curses --collect-all requests cli.py
 
       # 6️⃣ Debug dist folder
       - name: List dist folder
