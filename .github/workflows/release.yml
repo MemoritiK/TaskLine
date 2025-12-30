@@ -66,6 +66,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.LATEST_TAG }}
-          files: ${{ github.workspace }}/build/
+          files: ${{ github.workspace }}/build/cli.bin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
