@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04  # older = better compatibility
+    runs-on: ubuntu-latest # older = better compatibility
 
     steps:
       - name: Checkout repo
