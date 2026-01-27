@@ -9,7 +9,7 @@ A full-stack task management app with **shared workspaces** and **per-user task 
 
 ## **Features**
 
-* User registration & login with **JWT authentication**
+* User registration and login with **JWT authentication**
 * Secure password hashing (argon2)
 * CRUD tasks per user, with **priority** and **status**
 * Shared workspace management with members & task tracking
